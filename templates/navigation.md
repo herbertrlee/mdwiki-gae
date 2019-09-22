@@ -1,0 +1,3 @@
+# {{ title }}
+
+[gimmick:theme](flatly)
