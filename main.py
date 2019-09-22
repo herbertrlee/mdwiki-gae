@@ -2,14 +2,10 @@ import os
 
 from flask import Flask, redirect, url_for, render_template, request
 from flask_bootstrap import Bootstrap
-from flask_simplemde import SimpleMDE
 from google.cloud import storage
 from werkzeug.exceptions import NotFound
 
 app = Flask(__name__, template_folder='templates')
-app.config['SIMPLEMDE_JS_IIFE'] = True
-app.config['SIMPLEMDE_USE_CDN'] = True
-SimpleMDE(app)
 Bootstrap(app)
 
 TITLE = os.getenv("TITLE", "MDWiki")

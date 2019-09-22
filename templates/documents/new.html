@@ -2,8 +2,8 @@
 
 {%  block head %}
 {{ super() }}
-{{ simplemde.css }}
-{{ simplemde.js }}
+<link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+<script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
 {%  endblock %}
 
 {% block content %}
@@ -15,8 +15,16 @@
         <div class="form-group">
             <label for="editor">New Markdown</label>
             <textarea name="editor" id="editor"></textarea>
-            {{ simplemde.load }}
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    new EasyMDE({
+        element: document.getElementById("editor"),
+        spellChecker: false
+    });
+</script>
 {% endblock %}
