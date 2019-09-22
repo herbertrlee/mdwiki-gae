@@ -5,3 +5,8 @@ handlers:
   - url: /.*
     script: auto
     secure: always
+
+env_variables:
+  TITLE: Herbert's Personal Wiki
+  THEME: flatly
+  GCS_BUCKET: herbert-dev.appspot.com

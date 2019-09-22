@@ -1,3 +1,5 @@
 # {{ title }}
 
-[gimmick:theme](flatly)
+[gimmick:theme]({{ theme }})
+
+[New Page](documents)

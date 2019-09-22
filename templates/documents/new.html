@@ -1,0 +1,22 @@
+{% extends "bootstrap/base.html" %}
+
+{%  block head %}
+{{ super() }}
+{{ simplemde.css }}
+{{ simplemde.js }}
+{%  endblock %}
+
+{% block content %}
+    <form method="post">
+        <div class="form-group">
+            <label for="fileName">New File Name:</label>
+            <input type="text" class="form-control" id="fileName" name="file_name" placeholder="new_file.md">
+        </div>
+        <div class="form-group">
+            <label for="editor">New Markdown</label>
+            <textarea name="editor" id="editor"></textarea>
+            {{ simplemde.load }}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+{% endblock %}
