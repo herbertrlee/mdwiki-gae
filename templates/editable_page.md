@@ -1,6 +1,6 @@
 {{ file_contents }}
 ****
-Administration
+Actions
 ---------
 
 * [Edit This Page](documents/{{ markdown_file }})
