@@ -3,4 +3,4 @@
 Actions
 ---------
 
-* [Edit This Page](documents/{{ markdown_file }})
+* [Edit This Page]({{ url_for('edit_document', file_name=markdown_file) }})

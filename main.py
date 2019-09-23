@@ -46,7 +46,7 @@ def new_document():
     return redirect(f"/index.html#!{file_name}")
 
 
-@app.route("/documents/<file_name>")
+@app.route("/documents/<path:file_name>")
 def edit_document(file_name):
     file_name = f"{file_name}.md"
     blob = bucket.blob(file_name)
