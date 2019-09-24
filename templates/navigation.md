@@ -2,4 +2,8 @@
 
 [gimmick:theme]({{ theme }})
 
-[New Page](documents)
+[New Page](new)
+
+[Help]()
+
+  * [Hotkeys](hotkeys.md)
