@@ -7,3 +7,4 @@
 [Help]()
 
   * [Hotkeys](hotkeys.md)
+  * [MDWiki Docs](http://www.mdwiki.info)
