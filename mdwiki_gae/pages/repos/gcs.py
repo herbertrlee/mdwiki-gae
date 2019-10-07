@@ -1,5 +1,4 @@
 from google.cloud import storage
-from google.cloud.exceptions import NotFound
 
 from mdwiki_gae.pages.exceptions import PageNotFound
 

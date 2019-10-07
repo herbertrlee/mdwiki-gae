@@ -7,27 +7,24 @@ from tests.fakes.gcs import FakeGcsClient
 
 class GoogleCloudStoragePageRepositoryTests(TestCase):
 
+    def setUp(self):
+        self.bucket_name = 'test-bucket'
+
+        self.namespace = {}
+        self.storage_client = FakeGcsClient(self.namespace)
+        self.bucket = self.storage_client.create_bucket(self.bucket_name)
+
+        self.repo = GoogleCloudStoragePageRepository(self.bucket_name)
+        self.repo.storage_client = self.storage_client
+
     def test_get_not_found(self):
-        namespace = {}
-        storage_client = FakeGcsClient(namespace)
-        storage_client.create_bucket('test-bucket')
-
-        repo = GoogleCloudStoragePageRepository('test-bucket')
-        repo.storage_client = storage_client
-
         with self.assertRaises(PageNotFound):
-            repo.get('index.md')
+            self.repo.get('index.md')
 
     def test_get(self):
-        namespace = {}
-        storage_client = FakeGcsClient(namespace)
-        bucket = storage_client.create_bucket('test-bucket')
-
-        blob = bucket.blob('index.md')
+        blob = self.bucket.blob('index.md')
         blob.upload_from_string(b'hello world!')
 
-        repo = GoogleCloudStoragePageRepository('test-bucket')
-        repo.storage_client = storage_client
-
-        page_contents = repo.get('index.md')
+        page_contents = self.repo.get('index.md')
+        
         self.assertEqual('hello world!', page_contents)
