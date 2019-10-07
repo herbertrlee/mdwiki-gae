@@ -31,12 +31,9 @@ jobs:
         GCLOUD_AUTH: ${{ secrets.GCLOUD_AUTH }}
     - name: Deploy to App Engine
       uses: actions/gcloud/cli@master
+      run: echo $GOOGLE_CLOUD_PROJECT
       env:
         TITLE: Herbert's Knowledge Base
         THEME: flatly
-        GCS_BUCKET: ${{ secrets.GOOGLE_CLOUD_PROJECT }}.appspot.com
+        GCS_BUCKET: ${{ secrets.GCS_BUCKET }}
         GOOGLE_CLOUD_PROJECT: ${{ secrets.GOOGLE_CLOUD_PROJECT }}
-      run: |
-        pip install j2cli
-        cd deployments/app_engine
-        ./deploy.sh
