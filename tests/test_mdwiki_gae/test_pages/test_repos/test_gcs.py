@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from pages.exceptions import PageNotFound
-from pages.repos.gcs import GoogleCloudStoragePageRepository
+from mdwiki_gae.pages.exceptions import PageNotFound
+from mdwiki_gae.pages.repos.gcs import GoogleCloudStoragePageRepository
 from tests.fakes.gcs import FakeGcsClient
 
 

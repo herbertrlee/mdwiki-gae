@@ -1,6 +1,6 @@
 from google.cloud import storage
 
-from pages.exceptions import PageNotFound
+from mdwiki_gae.pages.exceptions import PageNotFound
 
 
 class GoogleCloudStoragePageRepository:
