@@ -33,7 +33,6 @@ jobs:
         cp deployments/app_engine/main.py target
         cp requirements.txt target
         cp -r mdwiki_gae target
-        cd target
       env:
         TITLE: Herbert's Knowledge Base
         THEME: flatly
@@ -45,6 +44,6 @@ jobs:
     - name: Deploy to App Engine
       uses: actions/gcloud/cli@master
       with:
-        args: app deploy --quiet
+        args: app deploy target/app.yaml --quiet
       env:
         CLOUDSDK_CORE_PROJECT: ${{ secrets.GOOGLE_CLOUD_PROJECT }}
