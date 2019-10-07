@@ -23,4 +23,6 @@ jobs:
         pip install -r requirements.txt
     - name: Run Unit Tests
       run: |
-        python -m unittest discover tests
+        pip install coverage
+        coverage run --source=mdwiki_gae -m unittest discover tests
+        coverage report
