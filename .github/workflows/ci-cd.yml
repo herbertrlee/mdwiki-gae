@@ -25,6 +25,19 @@ jobs:
         pip install coverage
         coverage run --source=mdwiki_gae -m unittest discover tests
         coverage report
+    - name: Build Target Distribution
+      run: |
+        pip install j2cli
+        mkdir target
+        j2 deployments/app_engine/app.yaml.jinja2 > target/app.yaml
+        cp deployments/app_engine/main.py target
+        cp requirements.txt target
+        cp -r mdwiki_gae target
+        cd target
+      env:
+        TITLE: Herbert's Knowledge Base
+        THEME: flatly
+        GCS_BUCKET: ${{ secrets.GOOGLE_CLOUD_PROJECT }}.appspot.com
     - name: Google Cloud Auth
       uses: actions/gcloud/auth@master
       env:
@@ -32,6 +45,6 @@ jobs:
     - name: Deploy to App Engine
       uses: actions/gcloud/cli@master
       with:
-        args: app describe
+        args: app deploy --quiet
       env:
         CLOUDSDK_CORE_PROJECT: ${{ secrets.GOOGLE_CLOUD_PROJECT }}
