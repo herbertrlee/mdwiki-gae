@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, redirect, url_for, render_template, request
 from flask_bootstrap import Bootstrap
+from google.cloud import storage
 from werkzeug.exceptions import NotFound
 
 from mdwiki_gae.assets.exceptions import AssetNotFound
@@ -16,8 +17,13 @@ TITLE = os.getenv("TITLE", "MDWiki")
 THEME = os.getenv("THEME", "spacelab")
 GCS_BUCKET = os.environ["GCS_BUCKET"]
 
+client = storage.Client()
+
 page_repo = GoogleCloudStoragePageRepository(GCS_BUCKET)
+page_repo.storage_client = client
+
 asset_repo = GoogleCloudStorageAssetRepository(GCS_BUCKET)
+asset_repo.storage_client = client
 
 
 @app.route("/")
