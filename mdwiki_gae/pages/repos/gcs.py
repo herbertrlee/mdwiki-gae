@@ -1,4 +1,5 @@
 from google.cloud import storage
+from google.cloud.exceptions import NotFound
 
 from mdwiki_gae.pages.exceptions import PageNotFound
 
@@ -20,4 +21,11 @@ class GoogleCloudStoragePageRepository:
         self._storage_client = storage_client
 
     def get(self, page_id: str):
-        raise PageNotFound
+        bucket = self.storage_client.get_bucket(self._bucket_name)
+
+        blob = bucket.get_blob(page_id)
+        if blob is None:
+            raise PageNotFound
+
+        blob_bytes = blob.download_as_string()
+        return blob_bytes.decode('utf-8')
