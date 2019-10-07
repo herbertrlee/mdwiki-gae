@@ -33,3 +33,5 @@ jobs:
       uses: actions/gcloud/cli@master
       with:
         args: app describe
+      env:
+        CLOUDSDK_CORE_PROJECT: ${{ secrets.GOOGLE_CLOUD_PROJECT }}
