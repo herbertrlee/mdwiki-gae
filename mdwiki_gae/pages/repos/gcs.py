@@ -19,7 +19,7 @@ class GoogleCloudStoragePageRepository:
     def storage_client(self, storage_client: storage.Client):
         self._storage_client = storage_client
 
-    def get(self, page_id: str):
+    def get(self, page_id: str) -> str:
         bucket = self.storage_client.get_bucket(self._bucket_name)
 
         blob = bucket.get_blob(page_id)
@@ -28,3 +28,10 @@ class GoogleCloudStoragePageRepository:
 
         blob_bytes = blob.download_as_string()
         return blob_bytes.decode('utf-8')
+
+    def save(self, page_id: str, page_contents: str):
+        bucket = self.storage_client.get_bucket(self._bucket_name)
+
+        blob = bucket.blob(page_id)
+
+        blob.upload_from_string(page_contents)

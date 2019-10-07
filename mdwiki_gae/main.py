@@ -2,8 +2,12 @@ import os
 
 from flask import Flask, redirect, url_for, render_template, request
 from flask_bootstrap import Bootstrap
-from google.cloud import storage
 from werkzeug.exceptions import NotFound
+
+from mdwiki_gae.assets.exceptions import AssetNotFound
+from mdwiki_gae.assets.repos.gcs import GoogleCloudStorageAssetRepository
+from mdwiki_gae.pages.exceptions import PageNotFound
+from mdwiki_gae.pages.repos.gcs import GoogleCloudStoragePageRepository
 
 app = Flask(__name__, template_folder='templates')
 Bootstrap(app)
@@ -12,8 +16,8 @@ TITLE = os.getenv("TITLE", "MDWiki")
 THEME = os.getenv("THEME", "spacelab")
 GCS_BUCKET = os.environ["GCS_BUCKET"]
 
-client = storage.Client()
-bucket = client.get_bucket(GCS_BUCKET)
+page_repo = GoogleCloudStoragePageRepository(GCS_BUCKET)
+asset_repo = GoogleCloudStorageAssetRepository(GCS_BUCKET)
 
 
 @app.route("/")
@@ -45,40 +49,39 @@ def save_document():
     file_name = request.form['file_name']
     file_contents = request.form['editor']
 
-    blob = bucket.blob(file_name)
-    blob.upload_from_string(file_contents)
+    page_repo.save(file_name, file_contents)
 
     return redirect(f"/index.html#!{file_name}")
 
 
 @app.route("/<path:file_name>:edit")
 def edit_document(file_name):
-    blob = bucket.blob(file_name)
-    if not blob.exists():
+    try:
+        file_contents = page_repo.get(file_name)
+    except PageNotFound:
         raise NotFound
 
-    file_contents = blob.download_as_string()
-    return render_template("edit.html", file_name=file_name, file_contents=file_contents.decode('utf-8'))
+    return render_template("edit.html", file_name=file_name, file_contents=file_contents)
 
 
 @app.route("/<path:markdown_file>.md")
 def serve_markdown_file(markdown_file):
     file_name = f"{markdown_file}.md"
-    blob = bucket.blob(file_name)
-    if not blob.exists():
+
+    try:
+        file_contents = page_repo.get(file_name)
+    except PageNotFound:
         raise NotFound
 
-    file_contents = blob.download_as_string()
-    return render_template("editable_page.md", file_name=file_name, file_contents=file_contents.decode('utf-8'))
+    return render_template("editable_page.md", file_name=file_name, file_contents=file_contents)
 
 
 @app.route("/<file_name>")
 def serve_from_gcs(file_name):
-    blob = bucket.blob(file_name)
-    if not blob.exists():
+    try:
+        return asset_repo.get(file_name)
+    except AssetNotFound:
         raise NotFound
-
-    return blob.download_as_string()
 
 
 if __name__ == "__main__":

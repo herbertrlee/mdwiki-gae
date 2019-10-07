@@ -26,5 +26,11 @@ class GoogleCloudStoragePageRepositoryTests(TestCase):
         blob.upload_from_string(b'hello world!')
 
         page_contents = self.repo.get('index.md')
-        
+
         self.assertEqual('hello world!', page_contents)
+
+    def test_save(self):
+        self.repo.save('index.md', 'hello world!')
+
+        blob = self.bucket.get_blob('index.md')
+        self.assertEqual('hello world!', blob.download_as_string())
