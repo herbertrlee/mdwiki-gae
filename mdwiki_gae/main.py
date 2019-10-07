@@ -13,7 +13,7 @@ THEME = os.getenv("THEME", "spacelab")
 GCS_BUCKET = os.environ["GCS_BUCKET"]
 
 client = storage.Client()
-bucket = client.bucket(GCS_BUCKET)
+bucket = client.get_bucket(GCS_BUCKET)
 
 
 @app.route("/")
