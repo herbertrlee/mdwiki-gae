@@ -31,9 +31,5 @@ jobs:
         GCLOUD_AUTH: ${{ secrets.GCLOUD_AUTH }}
     - name: Deploy to App Engine
       uses: actions/gcloud/cli@master
-      args: app describe
-      env:
-        TITLE: Herbert's Knowledge Base
-        THEME: flatly
-        GCS_BUCKET: ${{ secrets.GCS_BUCKET }}
-        GOOGLE_CLOUD_PROJECT: ${{ secrets.GOOGLE_CLOUD_PROJECT }}
+      with:
+        args: app describe
