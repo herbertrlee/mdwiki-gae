@@ -21,3 +21,4 @@ venv/
 pages/
 .idea/
 tests/
+service_account_key.json

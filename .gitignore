@@ -105,3 +105,6 @@ venv.bak/
 
 # Jetbrains
 .idea/
+
+# Secrets
+service_account_key.json
