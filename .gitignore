@@ -108,3 +108,4 @@ venv.bak/
 
 # Secrets
 service_account_key.json
+secrets/

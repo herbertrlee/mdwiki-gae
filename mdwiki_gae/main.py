@@ -47,8 +47,9 @@ def hotkeys_md():
     return render_template('hotkeys.md', title=TITLE)
 
 @app.route("/new")
-def new_document():
-    return render_template("edit.html", file_name="", file_contents="")
+@app.route("/<path:file_name>:new")
+def new_document(file_name=""):
+    return render_template("edit.html", file_name=file_name, file_contents="")
 
 @app.route("/save", methods=['POST'])
 def save_document():
@@ -77,7 +78,7 @@ def serve_markdown_file(markdown_file):
     try:
         file_contents = page_repo.get(file_name)
     except PageNotFound:
-        raise NotFound
+        return render_template("not_found.md", file_name=file_name)
 
     return render_template("editable_page.md", file_name=file_name, file_contents=file_contents)
 
