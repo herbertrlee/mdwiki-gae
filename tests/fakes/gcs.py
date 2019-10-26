@@ -1,5 +1,5 @@
 from functools import total_ordering
-from typing import Dict, Iterator
+from typing import Dict, Iterator, Union
 
 from google.cloud.exceptions import NotFound, Conflict
 
@@ -29,7 +29,7 @@ class FakeGcsClient:
     def bucket(self, bucket_name: str) -> 'FakeGcsBucket':
         return self._init_bucket(bucket_name)
 
-    def lookup_bucket(self, bucket_name: str) -> 'FakeGcsBucket':
+    def lookup_bucket(self, bucket_name: str) -> Union['FakeGcsBucket', None]:
         try:
             return self.get_bucket(bucket_name)
         except NotFound:
@@ -82,6 +82,7 @@ class FakeGcsBlob:
         self._bucket = bucket
         self._blob_id = blob_id
         self._namespace = namespace
+        self._metadata = {}
 
     @property
     def bucket(self) -> FakeGcsBucket:
@@ -90,6 +91,14 @@ class FakeGcsBlob:
     @property
     def name(self) -> str:
         return self._blob_id
+
+    @property
+    def metadata(self) -> Dict[str, str]:
+        return self._namespace[self._bucket.name][self._blob_id].get('metadata', {})
+
+    @metadata.setter
+    def metadata(self, metadata: Dict[str, str]):
+        self._metadata = metadata
 
     def __eq__(self, other: 'FakeGcsBlob'):
         return self.bucket == other.bucket and self.name == other.name
@@ -101,7 +110,7 @@ class FakeGcsBlob:
         return str({"blob_id": self.name, "bucket": self.bucket})
 
     def upload_from_string(self, data: bytes):
-        self._namespace[self._bucket.name][self._blob_id] = data
+        self._namespace[self._bucket.name][self._blob_id] = {"data": data, "metadata": self._metadata}
 
     def download_as_string(self) -> bytes:
-        return self._namespace[self._bucket.name][self._blob_id]
+        return self._namespace[self._bucket.name][self._blob_id]["data"]

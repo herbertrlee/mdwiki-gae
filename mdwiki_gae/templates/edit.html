@@ -9,12 +9,16 @@
 {% block content %}
     <form method="post" action="/save">
         <div class="form-group">
-            <label for="fileName">{% if not file_name %}New {% endif %}File Name:</label>
-            <input type="text" class="form-control" id="fileName" name="file_name" {% if not file_name %}placeholder="new_file.md"{% else %}value="{{ file_name }}" readonly{% endif %}>
+            <label for="fileName">{% if not page.name %}New {% endif %}File Name:</label>
+            <input type="text" class="form-control" id="fileName" name="file_name" {% if not page.name %}placeholder="new_file.md"{% else %}value="{{ page.name }}" readonly{% endif %}>
+        </div>
+        <div class="form-group">
+            <label for="fileTitle">Title:</label>
+            <input type="text" class="form-control" id="fileTitle" name="file_title" value="{{ page.title }}">
         </div>
         <div class="form-group">
             <label for="editor">New Markdown</label>
-            <textarea name="editor" id="editor">{{ file_contents }}</textarea>
+            <textarea name="editor" id="editor">{{ page.contents }}</textarea>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>

@@ -8,6 +8,7 @@ from werkzeug.exceptions import NotFound
 from mdwiki_gae.assets.exceptions import AssetNotFound
 from mdwiki_gae.assets.repos.gcs import GoogleCloudStorageAssetRepository
 from mdwiki_gae.pages.exceptions import PageNotFound
+from mdwiki_gae.pages.model import Page
 from mdwiki_gae.pages.repos.gcs import GoogleCloudStoragePageRepository
 
 app = Flask(__name__, template_folder='templates')
@@ -49,26 +50,30 @@ def hotkeys_md():
 @app.route("/new")
 @app.route("/<path:file_name>:new")
 def new_document(file_name=""):
-    return render_template("edit.html", file_name=file_name, file_contents="")
+    page = Page(name=file_name, contents="")
+    return render_template("edit.html", page=page)
 
 @app.route("/save", methods=['POST'])
 def save_document():
-    file_name = request.form['file_name']
-    file_contents = request.form['editor']
+    page = Page(
+        name=request.form['file_name'],
+        title=request.form['file_title'],
+        contents=request.form['editor']
+    )
 
-    page_repo.save(file_name, file_contents)
+    page_repo.save(page)
 
-    return redirect(f"/index.html#!{file_name}")
+    return redirect(f"/index.html#!{page.name}")
 
 
 @app.route("/<path:file_name>:edit")
 def edit_document(file_name):
     try:
-        file_contents = page_repo.get(file_name)
+        page = page_repo.get(file_name)
     except PageNotFound:
         raise NotFound
 
-    return render_template("edit.html", file_name=file_name, file_contents=file_contents)
+    return render_template("edit.html", page=page)
 
 
 @app.route("/<path:markdown_file>.md")
@@ -76,11 +81,11 @@ def serve_markdown_file(markdown_file):
     file_name = f"{markdown_file}.md"
 
     try:
-        file_contents = page_repo.get(file_name)
+        page = page_repo.get(file_name)
     except PageNotFound:
         return render_template("not_found.md", file_name=file_name)
 
-    return render_template("editable_page.md", file_name=file_name, file_contents=file_contents)
+    return render_template("editable_page.md", page=page)
 
 
 @app.route("/<file_name>")

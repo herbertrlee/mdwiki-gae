@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from mdwiki_gae.pages.exceptions import PageNotFound
+from mdwiki_gae.pages.model import Page
 from mdwiki_gae.pages.repos.gcs import GoogleCloudStoragePageRepository
 from tests.fakes.gcs import FakeGcsClient
 
@@ -25,12 +26,32 @@ class GoogleCloudStoragePageRepositoryTests(TestCase):
         blob = self.bucket.blob('index.md')
         blob.upload_from_string(b'hello world!')
 
-        page_contents = self.repo.get('index.md')
+        page = self.repo.get('index.md')
 
-        self.assertEqual('hello world!', page_contents)
+        expected_page = Page("index.md", "hello world!")
+        self.assertEqual(expected_page, page)
+
+    def test_get_with_title(self):
+        blob = self.bucket.blob('index.md')
+        blob.metadata = {"title": "Hello"}
+        blob.upload_from_string(b'hello world!')
+
+        page = self.repo.get("index.md")
+
+        expected_page = Page("index.md", "hello world!", title="Hello")
+        self.assertEqual(expected_page, page)
 
     def test_save(self):
-        self.repo.save('index.md', 'hello world!')
+        page = Page("index.md", "hello world!")
+        self.repo.save(page)
 
         blob = self.bucket.get_blob('index.md')
         self.assertEqual('hello world!', blob.download_as_string())
+
+    def test_save_with_title(self):
+        page = Page("index.md", "hello world!", title="Hello")
+        self.repo.save(page)
+
+        blob = self.bucket.get_blob('index.md')
+        self.assertEqual('hello world!', blob.download_as_string())
+        self.assertEqual({"title": "Hello"}, blob.metadata)
