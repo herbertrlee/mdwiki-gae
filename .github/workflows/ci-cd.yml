@@ -37,6 +37,7 @@ jobs:
         TITLE: Herbert's Knowledge Base
         THEME: flatly
         GCS_BUCKET: ${{ secrets.GOOGLE_CLOUD_PROJECT }}.appspot.com
+        ELASTICSEARCH_SITE: ${{ secrets.ELASTICSEARCH_SITE }}
     - name: Google Cloud Auth
       uses: actions/gcloud/auth@master
       env:
