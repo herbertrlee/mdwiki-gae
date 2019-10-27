@@ -102,6 +102,13 @@ def search():
 
     return redirect(path)
 
+
+@app.route("/_index", methods=['POST'])
+def index_document():
+    logger.info("Received document index message: %s", request.data)
+    return '', 204
+
+
 @app.route("/<path:file_name>:edit")
 def edit_document(file_name):
     try:
