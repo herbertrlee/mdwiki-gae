@@ -1,5 +1,9 @@
+import base64
+import json
+import logging
 import os
 
+from elasticsearch import Elasticsearch
 from flask import Flask, redirect, url_for, render_template, request
 from flask_bootstrap import Bootstrap
 from google.cloud import storage
@@ -11,9 +15,13 @@ from mdwiki_gae.pages.exceptions import PageNotFound
 from mdwiki_gae.pages.model import Page
 from mdwiki_gae.pages.repos.gcs import GoogleCloudStoragePageRepository
 
+logger = logging.getLogger("mdwiki")
+logger.setLevel(logging.INFO)
+
 app = Flask(__name__, template_folder='templates')
 Bootstrap(app)
 
+ELASTICSEARCH_SITE = os.environ['ELASTICSEARCH_SITE']
 TITLE = os.getenv("TITLE", "MDWiki")
 THEME = os.getenv("THEME", "spacelab")
 GCS_BUCKET = os.environ["GCS_BUCKET"]
@@ -25,6 +33,8 @@ page_repo.storage_client = client
 
 asset_repo = GoogleCloudStorageAssetRepository(GCS_BUCKET)
 asset_repo.storage_client = client
+
+elasticsearch_client = Elasticsearch(f'{ELASTICSEARCH_SITE}:443')
 
 
 @app.route("/")
@@ -47,6 +57,14 @@ def navigation_md():
 def hotkeys_md():
     return render_template('hotkeys.md', title=TITLE)
 
+@app.route("/search.md")
+def search_md():
+    search_term = request.args.get("search_term", None)
+    encoded_results = request.args.getlist("result")
+    decoded_results = [base64.b64decode(encoded_result).decode('utf-8') for encoded_result in encoded_results]
+    results = [json.loads(decoded_result) for decoded_result in decoded_results]
+    return render_template("search.md", title=TITLE, search_term=search_term, results=results)
+
 @app.route("/new")
 @app.route("/<path:file_name>:new")
 def new_document(file_name=""):
@@ -66,6 +84,24 @@ def save_document():
     return redirect(f"/index.html#!{page.name}")
 
 
+@app.route("/search", methods=['POST'])
+def search():
+    search_term = request.form['search']
+    search_body = {"query": {"match": {"text": search_term}}}
+    search_response = elasticsearch_client.search('pages', body=search_body, _source=['title'])
+    hits = search_response['hits']['hits']
+    results = [{"title": hit['_source']['title'], "name": base64.b64decode(hit['_id']).decode('utf-8')} for hit in hits]
+    json_results = [json.dumps(result) for result in results]
+    encoded_results = [base64.b64encode(json_result.encode('utf-8')).decode('utf-8') for json_result in json_results]
+    result_strings = [f'result={encoded_result}' for encoded_result in encoded_results]
+    result_query_string = "&".join(result_strings)
+    path = f"/index.html#!search.md?search_term={search_term}"
+
+    if result_query_string:
+        path += '&' + result_query_string
+
+    return redirect(path)
+
 @app.route("/<path:file_name>:edit")
 def edit_document(file_name):
     try:
@@ -74,7 +110,6 @@ def edit_document(file_name):
         raise NotFound
 
     return render_template("edit.html", page=page)
-
 
 @app.route("/<path:markdown_file>.md")
 def serve_markdown_file(markdown_file):
