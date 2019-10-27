@@ -103,8 +103,8 @@ def search():
     return redirect(path)
 
 
-@app.route("/_index", methods=['POST'])
-def index_document():
+@app.route("/reindex", methods=['POST'])
+def reindex():
     logger.info("Received document index message: %s", request.data)
     return '', 204
 
