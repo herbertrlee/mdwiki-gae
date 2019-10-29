@@ -81,6 +81,9 @@ def save_document():
 
     page_repo.save(page)
 
+    encoded_id = base64.b64encode(page.name.encode('utf-8')).decode('utf-8')
+    elasticsearch_client.index('pages', id=encoded_id, body={"text": page.contents, "title": page.title})
+
     return redirect(f"/index.html#!{page.name}")
 
 
@@ -101,12 +104,6 @@ def search():
         path += '&' + result_query_string
 
     return redirect(path)
-
-
-@app.route("/reindex", methods=['POST'])
-def reindex():
-    logger.info("Received document index message: %s", request.data)
-    return '', 204
 
 
 @app.route("/<path:file_name>:edit")
