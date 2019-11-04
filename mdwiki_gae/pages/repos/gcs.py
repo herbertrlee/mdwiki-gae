@@ -1,3 +1,4 @@
+from cached_property import cached_property
 from google.cloud import storage
 
 from mdwiki_gae.pages.exceptions import PageNotFound
@@ -24,9 +25,7 @@ class GoogleCloudStoragePageRepository:
         self._storage_client = storage_client
 
     def get(self, page_name: str) -> Page:
-        bucket = self.storage_client.get_bucket(self._bucket_name)
-
-        blob = bucket.get_blob(page_name)
+        blob = self._bucket.get_blob(page_name)
         if blob is None:
             raise PageNotFound
 
@@ -38,10 +37,17 @@ class GoogleCloudStoragePageRepository:
 
         return Page(page_name, page_contents, title=title)
 
-    def save(self, page: Page):
-        bucket = self.storage_client.get_bucket(self._bucket_name)
+    @cached_property
+    def _bucket(self) -> storage.Bucket:
+        return self.storage_client.get_bucket(self._bucket_name)
 
-        blob = bucket.blob(page.name)
+    def save(self, page: Page):
+        blob = self._bucket.blob(page.name)
         blob.metadata = {self.TITLE: page.title}
 
         blob.upload_from_string(page.contents)
+
+    def delete(self, page_name: str):
+        blob = self._bucket.blob(page_name)
+
+        blob.delete()

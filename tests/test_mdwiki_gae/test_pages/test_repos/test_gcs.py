@@ -55,3 +55,12 @@ class GoogleCloudStoragePageRepositoryTests(TestCase):
         blob = self.bucket.get_blob('index.md')
         self.assertEqual('hello world!', blob.download_as_string())
         self.assertEqual({"title": "Hello"}, blob.metadata)
+
+    def test_delete(self):
+        blob = self.bucket.blob('index.md')
+        blob.upload_from_string(b'hello world!')
+
+        self.repo.delete('index.md')
+
+        blob = self.bucket.get_blob('index.md')
+        self.assertIsNone(blob)

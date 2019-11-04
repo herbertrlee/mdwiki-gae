@@ -114,3 +114,6 @@ class FakeGcsBlob:
 
     def download_as_string(self) -> bytes:
         return self._namespace[self._bucket.name][self._blob_id]["data"]
+
+    def delete(self):
+        del self._namespace[self._bucket.name][self._blob_id]
