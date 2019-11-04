@@ -115,6 +115,20 @@ def edit_document(file_name):
 
     return render_template("edit.html", page=page)
 
+@app.route("/<path:file_name>:delete")
+def delete_page(file_name):
+    try:
+        page_repo.get(file_name)
+    except PageNotFound:
+        raise NotFound
+
+    page_repo.delete(file_name)
+
+    encoded_id = base64.b64encode(file_name.encode('utf-8')).decode('utf-8')
+    elasticsearch_client.delete('pages', encoded_id)
+
+    return redirect(url_for('index_html'))
+
 @app.route("/<path:markdown_file>.md")
 def serve_markdown_file(markdown_file):
     file_name = f"{markdown_file}.md"
